@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # ~/.local/bin/pokeget-random-logo
 # Muestra un Pokémon Gen I-IV aleatorio con ficha estilo Pokédex y lo guarda para Fastfetch
+# En esta versión se guarda el numero de la pokedex en color azul y el nombre del pokemon en color rojo a modo de leyenda
 
 set -euo pipefail
 
