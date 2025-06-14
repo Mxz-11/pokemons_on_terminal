@@ -201,7 +201,7 @@ fastfetch --log-level info | grep Logo       # path should match
 
 ---
 
-## 11  Credits
+## 10  Credits
 
 * **talwat/pokeget** — Pokémon sprites in ANSI.
 * **fastfetch-cli/fastfetch** — blazing‑fast system fetch.
