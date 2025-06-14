@@ -215,6 +215,5 @@ fastfetch --log-level info | grep Logo       # path should match
 
 * **talwat/pokeget** — Pokémon sprites in ANSI.
 * **fastfetch-cli/fastfetch** — blazing‑fast system fetch.
-* Guide generated for *Mi colegón* with the help of ChatGPT.
 
 Enjoy your console with a new Pokémon buddy each session! 🎮✨
