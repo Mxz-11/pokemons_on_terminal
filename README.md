@@ -1,8 +1,35 @@
 # README — Fastfetch + Pokeget with a Random Pokémon Logo
 
+![Demo Screenshot](assets/captura.png)
+
 > **Goal:** show a **different Pokémon (ID 1‑493)** every time you start a new shell session.
 > We combine **Pokeget** (sprite generator) with **Fastfetch** (system‑info fetch).
 > This guide walks you through installation, configuration, automation, and troubleshooting.
+
+---
+
+## Table of Contents
+
+* [1  Overview](#1--overview)
+* [2  Prerequisites](#2--prerequisites)
+* [3  Install Pokeget](#3--install-pokeget)
+
+  * [3.1  Via Cargo](#31--via-cargo-works-on-any-platform)
+  * [3.2  Distribution packages (Linux)](#32--distribution-packages-linux)
+  * [3.3  macOS (Homebrew)](#33--macos-homebrew)
+* [4  Install Fastfetch](#4--install-fastfetch)
+
+  * [4.1  Package manager](#41--package-manager)
+  * [4.2  Build from source](#42--build-from-source)
+* [5  Configure Fastfetch](#5--configure-fastfetch)
+
+  * [5.1  Locate or create the config file](#51--locate-or-create-the-config-file)
+  * [5.2  Set the logo block](#52--set-the-logo-block)
+* [6  Automation Script (`pokeget-random-logo`)](#6--automation-script-pokeget-random-logo)
+* [7  Integrate with your shell](#7--integrate-with-your-shell-bash-or-zsh)
+* [8  Using Neofetch instead (optional)](#8--using-neofetch-instead-optional)
+* [9  Quick verification checklist](#9--quick-verification-checklist)
+* [10  Credits](#10--credits)
 
 ---
 
@@ -102,7 +129,7 @@ fastfetch --gen-config       # creates config.jsonc
 
 ### 5.2  Set the logo block
 
-Edit `config.jsonc` and insert (or replace) the **logo** section:
+Add/replace in `config.jsonc`:
 
 ```jsonc
 "logo": {
@@ -112,13 +139,13 @@ Edit `config.jsonc` and insert (or replace) the **logo** section:
 },
 ```
 
-Newer Fastfetch builds prefer the key `path`; older ones accept `source`.
+*Newer builds prefer **path**; older accept **source**.*
 
 ---
 
 ## 6  Automation Script (`pokeget-random-logo`)
 
-Create `~/.local/bin/pokeget-random-logo` with:
+Create `~/.local/bin/pokeget-random-logo`:
 
 ```bash
 #!/usr/bin/env bash
@@ -143,7 +170,7 @@ fi
 "$POKEGET_BIN" "$NUM" --hide-name > "$OUT_FILE"
 ```
 
-Make it executable and add `~/.local/bin` to your `$PATH` if needed:
+Make it executable and ensure `~/.local/bin` is in your `$PATH`:
 
 ```bash
 chmod +x ~/.local/bin/pokeget-random-logo
@@ -154,54 +181,52 @@ export PATH="$HOME/.local/bin:$PATH"
 
 ## 7  Integrate with your shell (Bash or Zsh)
 
-Append to `~/.bashrc` **or** `~/.zshrc` **in this order**:
+Append to `~/.bashrc` **or** `~/.zshrc`:
 
 ```bash
-# 1  Ensure Cargo bin directory is in PATH (for pokeget)
+# 1  ensure Cargo bin dir is in PATH
 export PATH="$HOME/.cargo/bin:$PATH"
 
-# 2  Generate a fresh Pokémon logo
-eval "$(~/.local/bin/pokeget-random-logo)"   # creates ty.txt
+# 2  generate fresh Pokémon logo
+~/.local/bin/pokeget-random-logo
 
-# 3  Show Fastfetch
+# 3  show Fastfetch
 fastfetch
 ```
 
-Reload your shell:
+Reload:
 
 ```bash
 source ~/.bashrc   # or source ~/.zshrc
 ```
 
-Open a new terminal — a new Pokémon should greet you every time!
+Open a new terminal — a new Pokémon will greet you.
 
 ---
 
 ## 8  Using Neofetch instead (optional)
-
-If you prefer Neofetch:
 
 ```bash
 ~/.local/bin/pokeget-random-logo
 neofetch --ascii ~/.config/fastfetch/ty.txt
 ```
 
-Add those two lines to your shell‑rc.
+Add both lines to your shell‑rc.
 
 ---
 
 ## 9  Quick verification checklist
 
 ```bash
-which pokeget         # should return a path
-which fastfetch       # should return a path
-cat ~/.config/fastfetch/ty.txt | head -n 5   # see ANSI colour codes
-fastfetch --log-level info | grep Logo       # path should match
+which pokeget
+which fastfetch
+cat ~/.config/fastfetch/ty.txt | head -n 5
+fastfetch --log-level info | grep Logo
 ```
 
 ---
 
-## 10  Credits
+## 10  Credits
 
 * **talwat/pokeget** — Pokémon sprites in ANSI.
 * **fastfetch-cli/fastfetch** — blazing‑fast system fetch.
