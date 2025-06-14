@@ -14,5 +14,5 @@ else
     NUM=$(( (RANDOM % 493) + 1 ))
 fi
 
-# Genera el sprite SIN nombre y lo escribe (">" = sobreescribe)
+# Genera el sprite SIN el nombre del pokemon y lo sobreescribe
 pokeget "$NUM" --hide-name > "$OUT_FILE"
