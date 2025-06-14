@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# ~/.local/bin/pokeget-random-logo
+# Genera un Pokémon aleatorio (1-493) y lo guarda para Fastfetch
+
+set -euo pipefail
+
+OUT_FILE="$HOME/.config/fastfetch/ty.txt"
+mkdir -p "$(dirname "$OUT_FILE")"
+
+# Número aleatorio: usa shuf si lo tienes; si no, $RANDOM
+if command -v shuf >/dev/null 2>&1; then
+    NUM=$(shuf -i 1-493 -n 1)
+else
+    NUM=$(( (RANDOM % 493) + 1 ))
+fi
+
+# Genera el sprite SIN nombre y lo escribe (">" = sobreescribe)
+pokeget "$NUM" --hide-name > "$OUT_FILE"
