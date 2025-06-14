@@ -201,16 +201,6 @@ fastfetch --log-level info | grep Logo       # path should match
 
 ---
 
-## 10  Troubleshooting
-
-| Symptom                      | Likely cause                                 | Fix                                                                    |
-| ---------------------------- | -------------------------------------------- | ---------------------------------------------------------------------- |
-| `pokeget: command not found` | `$PATH` doesn’t include `~/.cargo/bin`       | add export or reinstall Pokeget                                        |
-| Logo shows no colour         | Terminal lacks 24‑bit colour                 | enable true‑color or switch terminal                                   |
-| Fastfetch ignores logo       | wrong key (`path` vs `source`) or wrong path | correct the logo block and verify with `fastfetch --list-config-paths` |
-
----
-
 ## 11  Credits
 
 * **talwat/pokeget** — Pokémon sprites in ANSI.
