@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # ~/.local/bin/pokeget-random-logo
-# Muestra un Pokémon Gen I-IV aleatorio con ficha estilo Pokédex y lo guarda para Fastfetch
-# En esta versión se guarda el numero de la pokedex en color azul y el nombre del pokemon en color rojo a modo de leyenda
+# Muestra un Pokémon Gen I‑IV aleatorio con ficha estilo Pokédex Deluxe,
+# añadiendo tipo(s) y guardándolo para Fastfetch.
 
 set -euo pipefail
 
 OUT_FILE="$HOME/.config/fastfetch/ty.txt"
 mkdir -p "$(dirname "$OUT_FILE")"
+
 
 if command -v shuf >/dev/null 2>&1; then
     NUM=$(shuf -i 1-493 -n 1)
@@ -15,35 +16,55 @@ else
 fi
 NUM_PAD=$(printf '%03d' "$NUM")
 
+
 pokeget "$NUM" --hide-name >"$OUT_FILE"
 
 POKE_NAME="???"
+POKE_TYPES="???"
 if command -v curl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
-    POKE_NAME="$(curl -s "https://pokeapi.co/api/v2/pokemon/${NUM}" 2>/dev/null \
-                  | jq -r '.name' 2>/dev/null \
-                  | sed -E 's/-/ /g; s/(^| )(.)/\U\2/g')"
+    API_JSON=$(curl -s "https://pokeapi.co/api/v2/pokemon/${NUM}" 2>/dev/null || true)
+    if [[ -n "$API_JSON" ]]; then
+        POKE_NAME=$(printf '%s' "$API_JSON" | jq -r '.name' | sed -E 's/-/ /g; s/(^| )(.)/\U\2/g')
+        mapfile -t TYPE_ARRAY < <(printf '%s' "$API_JSON" | jq -r '.types | sort_by(.slot) | .[].type.name')
+        POKE_TYPES=$(printf '%s/' "${TYPE_ARRAY[@]}")
+        POKE_TYPES=${POKE_TYPES%/}
+        POKE_TYPES=$(printf '%s' "$POKE_TYPES" | sed -E 's/(^|\/)(.)/\1\U\2/g')
+    fi
 fi
+
 
 if command -v tput >/dev/null 2>&1 && [ "$(tput colors)" -ge 8 ]; then
-    BOLD=$(tput bold); RED=$(tput setaf 1); BLUE=$(tput setaf 4); RESET=$(tput sgr0)
+    BOLD=$(tput bold); RED=$(tput setaf 1); BLUE=$(tput setaf 4); CYAN=$(tput setaf 6); RESET=$(tput sgr0)
 else
-    BOLD=""; RED=""; BLUE=""; RESET=""
+    BOLD=""; RED=""; BLUE=""; CYAN=""; RESET=""
 fi
 
+
 INFO_PLAIN="#${NUM_PAD}  ${POKE_NAME}"
+TYPE_PLAIN="Type: ${POKE_TYPES}"
+
 INFO_COLORED="${BOLD}${BLUE}#${NUM_PAD}${RESET}  ${RED}${POKE_NAME}${RESET}"
+TYPE_COLORED="${CYAN}Type:${RESET} ${BOLD}${POKE_TYPES}${RESET}"
 
-WIDTH=$(( ${#INFO_PLAIN} + 2 ))
+WIDTH_PLAIN=${#INFO_PLAIN}
+(( ${#TYPE_PLAIN} > WIDTH_PLAIN )) && WIDTH_PLAIN=${#TYPE_PLAIN}
+WIDTH=$(( WIDTH_PLAIN + 2 ))
+
 HLINE=$(printf '─%.0s' $(seq 1 "$WIDTH"))
-
 TOP="╭${HLINE}╮"
-MID="│ ${INFO_COLORED} │"
 BOT="╰${HLINE}╯"
 
+print_line() {
+    local plain="$1"
+    local colored="$2"
+    local spaces=$(( WIDTH_PLAIN - ${#plain} ))
+    printf '│ %s%*s │\n' "$colored" "$spaces" ""
+}
+
 {
-    echo                     
+    echo                      
     echo "$TOP"
-    echo "$MID"
+    print_line "$INFO_PLAIN" "$INFO_COLORED"
+    print_line "$TYPE_PLAIN" "$TYPE_COLORED"
     echo "$BOT"
 } >>"$OUT_FILE"
-
