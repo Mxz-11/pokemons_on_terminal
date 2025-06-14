@@ -1,18 +1,48 @@
 #!/usr/bin/env bash
 # ~/.local/bin/pokeget-random-logo
-# Genera un Pokémon aleatorio (1-493) y lo guarda para Fastfetch
+# Muestra un Pokémon Gen I-IV aleatorio con ficha estilo Pokédex y lo guarda para Fastfetch
 
 set -euo pipefail
 
 OUT_FILE="$HOME/.config/fastfetch/ty.txt"
 mkdir -p "$(dirname "$OUT_FILE")"
 
-# Número aleatorio: usa shuf si lo tienes; si no, $RANDOM
 if command -v shuf >/dev/null 2>&1; then
     NUM=$(shuf -i 1-493 -n 1)
 else
     NUM=$(( (RANDOM % 493) + 1 ))
 fi
+NUM_PAD=$(printf '%03d' "$NUM")
 
-# Genera el sprite SIN el nombre del pokemon y lo sobreescribe
-pokeget "$NUM" --hide-name > "$OUT_FILE"
+pokeget "$NUM" --hide-name >"$OUT_FILE"
+
+POKE_NAME="???"
+if command -v curl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
+    POKE_NAME="$(curl -s "https://pokeapi.co/api/v2/pokemon/${NUM}" 2>/dev/null \
+                  | jq -r '.name' 2>/dev/null \
+                  | sed -E 's/-/ /g; s/(^| )(.)/\U\2/g')"
+fi
+
+if command -v tput >/dev/null 2>&1 && [ "$(tput colors)" -ge 8 ]; then
+    BOLD=$(tput bold); RED=$(tput setaf 1); BLUE=$(tput setaf 4); RESET=$(tput sgr0)
+else
+    BOLD=""; RED=""; BLUE=""; RESET=""
+fi
+
+INFO_PLAIN="#${NUM_PAD}  ${POKE_NAME}"
+INFO_COLORED="${BOLD}${BLUE}#${NUM_PAD}${RESET}  ${RED}${POKE_NAME}${RESET}"
+
+WIDTH=$(( ${#INFO_PLAIN} + 2 ))
+HLINE=$(printf '─%.0s' $(seq 1 "$WIDTH"))
+
+TOP="╭${HLINE}╮"
+MID="│ ${INFO_COLORED} │"
+BOT="╰${HLINE}╯"
+
+{
+    echo                     
+    echo "$TOP"
+    echo "$MID"
+    echo "$BOT"
+} >>"$OUT_FILE"
+
